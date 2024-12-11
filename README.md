@@ -1,2 +1,2 @@
-# iESS
-Intelligent Energy Storage System
+# iEMS
+Intelligent Energy Management System
