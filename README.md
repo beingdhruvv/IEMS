@@ -101,7 +101,7 @@ Author: Pavan Kalsariya
 
 ## Development
 - Organization: Teenage Engineering Works
-- Team Members: Pavan Kalsariya, Dhruv Suthar, Hena Patel, Pratham Patel, Adarsh Singh, Rishav Patra
+- Team Members: Pavan Kalsariya, Pratham Patel, Dhruv Suthar, Hena Patel, Adarsh Singh, Rishav Patra
 - Version: 2.1.0
 
 ## License
