@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Energy Dashboard Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Roboto:wght@300;500&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2E7D32;
+      --secondary: #81C784;
+      --accent: #FFD54F;
+      --tertiary: #17a2b8;
+      --bg: #f4faf5;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --font: 'Quicksand', sans-serif;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --gradient-start: #34b3a0;
+      --gradient-mid: #ffcc33;
+      --gradient-end: #28a745;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: 80px 1fr;
+      min-height: 100vh;
+      gap: 24px;
+      padding: 24px;
+      max-width: 1920px;
+      margin: 0 auto;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      grid-row: 1 / -1;
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      position: sticky;
+      top: 24px;
+      height: calc(100vh - 48px);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--bg);
+    }
+
+    .sidebar-logo i {
+      font-size: 2.2rem;
+      color: var(--primary);
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .nav-item {
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      font-weight: 500;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: #e8f5e9;
+      color: #4CAF50;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      color: #4CAF50;
+    }
+
+    .nav-item i {
+      font-size: 1.4rem;
+      color: var(--text);
+      transition: color 0.3s ease;
+    }
+
+    .system-info {
+      margin-top: auto;
+      padding: 1.5rem;
+      background: var(--bg);
+      border-radius: 12px;
+    }
+
+    .system-info h4 {
+      color: var(--primary); /* Removed space */
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    
+    .system-info p {
+      margin-bottom: 0.8rem;
+      font-size: 1.1rem;
+    }
+
+    /* Header Styles */
+    .header {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      padding: 0.8rem 1.2rem;
+      background: var(--bg);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .user-info:hover {
+      cursor: pointer;
+    }
+
+    .user-info i {
+      font-size: 1.6rem;
+      color: var(--primary);
+    }
+
+    .user-info span {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Main Content */
+    .main-content {
+      grid-column: 2;
+      grid-row: 2;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto minmax(400px, auto) minmax(350px, auto);
+      gap: 24px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .stat-item {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.4rem 1.2rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.7rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .stat-item:hover {
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+
+    .stat-trend {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      background: var(--bg);
+    }
+
+    .stat-trend.up {
+      color: #4CAF50;
+    }
+
+    .stat-trend.down {
+      color: #f44336;
+    }
+
+    .stat-trend.stable {
+      color: #FF9800;
+    }
+
+    .quick-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding: 1rem;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .action-btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 0.9rem;
+      
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .action-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .action-btn i {
+      font-size: 1.1rem;
+    }
+
+    .comparison-matrix {
+      font-size: 0.8rem;
+      color: var(--text);
+      opacity: 0.8;
+      text-align: center;
+      margin-top: 0.3rem;
+    }
+
+    .stat-item i {
+      font-size: 2rem;
+      color: var(--primary);
+      background: var(--bg);
+      padding: 0.8rem;
+      border-radius: 15px;
+    }
+
+    .stat-item h3 {
+      font-size: 1rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .stat-item .value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--primary);
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Chart Cards */
+    .chart-card {
+      grid-column: 1 / 4;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.8rem;
+      box-shadow: var(--shadow);
+    }
+
+    .chart-card h3 {
+      font-size: 1.3rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    /* System Status */
+    .system-status {
+      grid-column: 4;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.8rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .controls {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .control-btn {
+      padding: 1.2rem;
+      border: none;
+      border-radius: 12px;
+      background: var(--secondary);
+      color: white;
+      cursor: pointer;
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      position: relative;
+      padding-right: 3rem;
+    }
+
+    .control-btn i {
+      font-size: 1.4rem;
+      min-width: 24px;
+      text-align: center;
+      margin-right: 0.5rem;
+    }
+
+    .control-btn span:not(.status-indicator) {
+      flex: 1;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      position: absolute;
+      right: 1.2rem;
+      top: 50%;
+      transition: all 0.3s ease;
+      margin-left: auto;
+    }
+
+    .status-indicator.active {
+      background: #fff;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    }
+
+    .control-btn:hover {
+      background: var (--primary);
+    }
+
+    .control-btn.active {
+      background: var(--primary);
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+    }
+
+    .status-info {
+      margin-top: auto;
+      padding-top: 1.5rem;
+      border-top: 3px solid var(--bg);
+    }
+
+    .status-info h4 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .status-info p {
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+      color: var (--text);
+    }
+
+    #lastUpdate {
+      color: var (--primary);
+      font-weight: 600;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1400px) {
+      .dashboard {
+        grid-template-columns: 240px 1fr;
+        padding: 20px;
+        gap: 20px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        display: none;
+      }
+      
+      .header,
+      .main-content {
+        grid-column: 1;
+      }
+
+      .system-status {
+        grid-column: 1 / -1;
+      }
+
+      .chart-card {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Add new styles */
+    .efficiency-meter {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 12px;
+    }
+
+    .progress-bar {
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      position: relative;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .efficiency-value {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .alerts {
+      margin-top: 1rem;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    .alert {
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert.warning {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .alert.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    /* Add styles for system status in sidebar */
+    .status-card {
+      margin-top: auto;
+      padding: 1.5rem;
+      background: var(--bg);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .status-card h4 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .status-card p {
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+      color: var(--text);
+      opacity: 0.9;
+    }
+
+    .status-card #lastUpdate {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Add Analytics page styles */
+    .analytics-content {
+      display: none;
+      grid-column: 2;
+      grid-row: 2;
+      gap: 24px;
+    }
+
+    .analytics-content.active {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .analytics-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.8rem;
+      box-shadow: var(--shadow);
+    }
+
+    .analytics-card.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .analytics-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .time-filter {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .time-filter button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .time-filter button.active {
+      background: var(--primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <i class="fas fa-solar-panel"></i>
+        <h2>iEMS</h2>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item active">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </li>
+        <li class="nav-item">
+          <i class="fas fa-chart-line"></i>
+          <span>Analytics</span>
+        </li>
+        <li class="nav-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </li>
+        <li class="nav-item">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+        </li>
+        <li class="nav-item">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </li>
+      </ul>
+      <div class="status-card">
+        <h4>System Status</h4>
+        <p id="systemStatus">All systems operational</p>
+        <p>Last updated: <span id="lastUpdate">Just now</span></p>
+      </div>
+      <div class="system-info">
+        <h4>System Info</h4>
+        <p>Version: 2.1.0</p>
+        <p>Last Update: Today</p>
+      </div>
+    </div>
+
+    <header class="header">
+      <h1>Intelligent Energy Management System</h1>
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <span>Welcome, User</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="stats-grid">
+        <div class="card stat-item">
+          <i class="fas fa-solar-panel"></i>
+          <h3>Solar Generation</h3>
+          <div class="value">3.5 kW</div>
+          <div class="stat-trend up">
+            <i class="fas fa-arrow-up"></i>
+            <span>12% vs yesterday</span>
+          </div>
+          <div class="comparison-matrix">Peak: 4.2 kW | Avg: 3.1 kW</div>
+        </div>
+        <div class="card stat-item">
+          <i class="fas fa-battery-three-quarters"></i>
+          <h3>Battery Level</h3>
+          <div class="value">75%</div>
+          <div class="stat-trend down">
+            <i class="fas fa-arrow-down"></i>
+            <span>5% last hour</span>
+          </div>
+          <div class="comparison-matrix">Capacity: 100 kWh | Health: 98%</div>
+        </div>
+        <div class="card stat-item">
+          <i class="fas fa-bolt"></i>
+          <h3>Power Usage</h3>
+          <div class="value">2.8 kW</div>
+          <div class="stat-trend up">
+            <i class="fas fa-arrow-up"></i>
+            <span>8% vs average</span>
+          </div>
+          <div class="comparison-matrix">Peak: 3.5 kW | Low: 1.2 kW</div>
+        </div>
+        <div class="card stat-item">
+          <i class="fas fa-temperature-high"></i>
+          <h3>System Temperature</h3>
+          <div class="value">24°C</div>
+          <div class="stat-trend stable">
+            <i class="fas fa-equals"></i>
+            <span>Stable</span>
+          </div>
+          <div class="comparison-matrix">Max: 28°C | Min: 20°C</div>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <h3>Power Consumption Trends</h3>
+        <div id="graph"></div>
+        <div class="quick-actions">
+          <button class="action-btn">
+            <i class="fas fa-download"></i>
+            Export Data
+          </button>
+          <button class="action-btn">
+            <i class="fas fa-calendar"></i>
+            Schedule Report
+          </button>
+          <button class="action-btn">
+            <i class="fas fa-chart-line"></i>
+            Detailed Analysis
+          </button>
+        </div>
+      </div>
+
+      <div class="card system-status">
+        <h3>Energy Management Controls</h3>
+        <div class="controls">
+          <button class="control-btn" onclick="toggleControl('solar')" id="solarBtn">
+            <i class="fas fa-sun"></i> Solar Power
+            <span class="status-indicator"></span>
+          </button>
+          <button class="control-btn" onclick="toggleControl('battery')" id="batteryBtn">
+            <i class="fas fa-battery-full"></i> Battery
+            <span class="status-indicator"></span>
+          </button>
+          <button class="control-btn" onclick="toggleControl('grid')" id="gridBtn">
+            <i class="fas fa-plug"></i> Grid Power
+            <span class="status-indicator"></span>
+          </button>
+          <button class="control-btn" onclick="toggleAutoMode()" id="autoBtn">
+            <i class="fas fa-robot"></i> Auto Mode
+            <span class="status-indicator"></span>
+          </button>
+        </div>
+        <div class="efficiency-meter">
+          <h4>System Efficiency</h4>
+          <div class="progress-bar">
+            <div class="progress" id="efficiencyBar"></div>
+            <span class="efficiency-value">0%</span>
+          </div>
+        </div>
+        <div class="alerts" id="alertsContainer"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Power Consumption Chart
+      const options = {
+        series: [
+          { name: "Solar Generation (kWh)", data: [40, 50, 55, 48, 60, 70] },
+          { name: "Battery Storage (kWh)", data: [20, 30, 28, 35, 40, 50] },
+          { name: "Energy Consumption (kWh)", data: [60, 65, 70, 75, 85, 90] }
+        ],
+        chart: {
+          type: "area",
+          height: 350,
+          zoom: { enabled: true },
+          toolbar: { show: true, tools: { zoomin: true, zoomout: true, pan: true, reset: true } },
+          animations: { enabled: true, easing: "easeout", dynamicAnimation: { speed: 600 } },
+          fontFamily: 'Quicksand, sans-serif'
+        },
+        colors: ["var(--primary)", "var(--secondary)", "var(--tertiary)"],
+        stroke: { curve: "smooth", width: 3 },
+        fill: {
+          type: 'gradient',
+          gradient: { 
+            shade: 'light', 
+            gradientToColors: ['#34b3a0', '#ffcc33', '#28a745'], 
+            opacityFrom: 0.5, 
+            opacityTo: 0.1 
+          }
+        },
+        xaxis: { 
+          categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+          labels: {
+            style: {
+              colors: 'var(--text)',
+              fontFamily: 'Quicksand, sans-serif'
+            }
+          }
+        },
+        yaxis: {
+          labels: {
+            style: {
+              colors: 'var(--text)',
+              fontFamily: 'Quicksand, sans-serif'
+            }
+          }
+        },
+        markers: { size: 5, hover: { sizeOffset: 4 } },
+        grid: { borderColor: "#ddd", strokeDashArray: 3 },
+        tooltip: { 
+          theme: "dark", 
+          shared: true, 
+          followCursor: true,
+          style: {
+            fontSize: '12px',
+            fontFamily: 'Quicksand, sans-serif'
+          }
+        }
+      };
+
+      // Initialize the power consumption chart
+      const powerChart = new ApexCharts(document.querySelector("#graph"), options);
+      powerChart.render();
+
+      // Temperature Gauge
+      const tempOptions = {
+        series: [24],
+        chart: {
+          type: 'radialBar',
+          height: 300,
+          fontFamily: 'Quicksand, sans-serif',
+        },
+        plotOptions: {
+          radialBar: {
+            startAngle: -135,
+            endAngle: 135,
+            hollow: {
+              margin: 15,
+              size: '70%'
+            },
+            track: {
+              background: '#f2f2f2',
+              strokeWidth: '97%',
+              margin: 5,
+              dropShadow: {
+                enabled: true,
+                top: 2,
+                left: 0,
+                blur: 4,
+                opacity: 0.15
+              }
+            },
+            dataLabels: {
+              name: {
+                offsetY: -10,
+                color: '#888',
+                fontSize: '17px',
+                fontFamily: 'Quicksand, sans-serif',
+              },
+              value: {
+                color: '#111',
+                fontSize: '36px',
+                fontWeight: 600,
+                formatter: function(val) {
+                  return val + '°C';
+                }
+              }
+            }
+          }
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'dark',
+            type: 'horizontal',
+            shadeIntensity: 0.5,
+            gradientToColors: ['var(--gradient-end)'],
+            inverseColors: true,
+            opacityFrom: 1,
+            opacityTo: 1,
+            stops: [0, 100]
+          }
+        },
+        stroke: {
+          lineCap: 'round'
+        },
+        labels: ['Temperature']
+      };
+
+      // Initialize temperature gauge
+      const tempChart = new ApexCharts(document.querySelector("#tempGauge"), tempOptions);
+      tempChart.render();
+    });
+
+    // System Control Functions
+    let autoMode = false;
+    const controls = {
+      solar: false,
+      battery: false,
+      grid: false
+    };
+
+    function toggleControl(type) {
+      if (autoMode && type !== 'auto') {
+        showAlert('Warning: Disable Auto Mode first', 'warning');
+        return;
+      }
+      
+      controls[type] = !controls[type];
+      updateControlUI(type);
+      updateEfficiency();
+    }
+
+    function toggleAutoMode() {
+      autoMode = !autoMode;
+      document.getElementById('autoBtn').classList.toggle('active');
+      document.querySelector('#autoBtn .status-indicator').classList.toggle('active');
+      
+      if (autoMode) {
+        optimizeEnergy();
+        showAlert('Auto Mode Enabled', 'success');
+      }
+    }
+
+    function updateControlUI(type) {
+      const btn = document.getElementById(`${type}Btn`);
+      const indicator = btn.querySelector('.status-indicator');
+      
+      if (controls[type]) {
+        btn.classList.add('active');
+        indicator.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+        indicator.classList.remove('active');
+      }
+    }
+
+    function updateEfficiency() {
+      const efficiency = calculateEfficiency();
+      document.getElementById('efficiencyBar').style.width = `${efficiency}%`;
+      document.querySelector('.efficiency-value').textContent = `${efficiency}%`;
+    }
+
+    function calculateEfficiency() {
+      // Simplified efficiency calculation
+      return Math.floor(Math.random() * 30 + 70); // Returns 70-100
+    }
+
+    function optimizeEnergy() {
+      if (!autoMode) return;
+      
+      // Simulate energy optimization logic
+      const hour = new Date().getHours();
+      const isSunlight = hour >= 6 && hour <= 18;
+      
+      controls.solar = isSunlight;
+      controls.battery = !isSunlight;
+      controls.grid = false;
+      
+      Object.keys(controls).forEach(updateControlUI);
+      updateEfficiency();
+    }
+
+    function showAlert(message, type) {
+      const alertsContainer = document.getElementById('alertsContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert ${type}`;
+      alert.innerHTML = `<i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : 'check-circle'}"></i>${message}`;
+      
+      alertsContainer.prepend(alert);
+      setTimeout(() => alert.remove(), 5000);
+    }
+
+    // Real-time updates
+    function updateDateTime() {
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+    }
+
+    // Initialize real-time updates
+    setInterval(() => {
+      updateDateTime();
+      if (autoMode) optimizeEnergy();
+    }, 5000);
+
+    // Add navigation handling
+    document.addEventListener('DOMContentLoaded', function() {
+      const mainContent = document.querySelector('.main-content');
+      const analyticsContent = document.createElement('div');
+      analyticsContent.className = 'analytics-content';
+      analyticsContent.innerHTML = `
+        <div class="analytics-card full-width">
+          <div class="analytics-header">
+            <h3>Energy Consumption Analysis</h3>
+            <div class="time-filter">
+              <button class="active" onclick="updateTimeframe('day')">Day</button>
+              <button onclick="updateTimeframe('week')">Week</button>
+              <button onclick="updateTimeframe('month')">Month</button>
+              <button onclick="updateTimeframe('year')">Year</button>
+            </div>
+          </div>
+          <div id="consumptionChart"></div>
+          <div class="quick-actions" style="margin-top: 1rem; padding: 1rem; justify-content: flex-start; gap: 1rem;">
+            <button class="action-btn">
+              <i class="fas fa-download"></i>
+              Export Data
+            </button>
+            <button class="action-btn">
+              <i class="fas fa-calendar"></i>
+              Schedule Report
+            </button>
+            <button class="action-btn">
+              <i class="fas fa-chart-line"></i>
+              Detailed Analysis
+            </button>
+          </div>
+        </div>
+        <div class="analytics-card">
+          <h3>Peak Usage Hours</h3>
+          <div id="peakUsageChart"></div>
+        </div>
+        <div class="analytics-card">
+          <h3>Cost Analysis</h3>
+          <div id="costChart"></div>
+        </div>
+      `;
+      
+      mainContent.parentNode.insertBefore(analyticsContent, mainContent.nextSibling);
+
+      // Initialize Analytics Charts
+      initAnalyticsCharts();
+
+      // Handle navigation
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', function() {
+          navItems.forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          
+          if(this.querySelector('span').textContent === 'Analytics') {
+            mainContent.style.display = 'none';
+            analyticsContent.classList.add('active');
+            // Redraw charts when analytics tab is shown
+            window.dispatchEvent(new Event('resize'));
+          } else {
+            mainContent.style.display = 'grid';
+            analyticsContent.classList.remove('active');
+          }
+        });
+      });
+    });
+
+    // Analytics Charts Configuration
+    let consumptionChart, peakUsageChart, costChart;
+    const timeframeData = {
+      day: {
+        consumption: {
+          timestamps: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '23:59'],
+          consumption: [30, 25, 35, 50, 65, 60, 70, 55, 40],
+          generation: [0, 0, 10, 35, 45, 50, 40, 15, 0]
+        },
+        peakUsage: {
+          times: ["6am", "8am", "10am", "12pm", "2pm", "4pm", "6pm", "8pm", "10pm"],
+          data: [44, 55, 57, 56, 61, 58, 63, 60, 45]
+        },
+        cost: [
+          { x: 'Grid', y: 150 },
+          { x: 'Solar', y: 50 },
+          { x: 'Battery', y: 80 }
+        ]
+      },
+      week: {
+        consumption: {
+          timestamps: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          consumption: [250, 280, 260, 275, 290, 310, 270],
+          generation: [180, 200, 190, 210, 195, 205, 185]
+        },
+        peakUsage: {
+          times: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: [65, 72, 68, 70, 75, 80, 70]
+        },
+        cost: [
+          { x: 'Grid', y: 800 },
+          { x: 'Solar', y: 400 },
+          { x: 'Battery', y: 300 }
+        ]
+      },
+      month: {
+        consumption: {
+          timestamps: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+          consumption: [1200, 1300, 1250, 1400],
+          generation: [800, 850, 900, 875]
+        },
+        peakUsage: {
+          times: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+          data: [85, 90, 88, 92]
+        },
+        cost: [
+          { x: 'Grid', y: 3500 },
+          { x: 'Solar', y: 1800 },
+          { x: 'Battery', y: 1200 }
+        ]
+      },
+      year: {
+        consumption: {
+          timestamps: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          consumption: [4500, 4200, 4800, 5000, 5200, 5500, 5800, 5600, 5400, 5000, 4800, 4600],
+          generation: [3000, 3200, 3500, 3800, 4000, 4200, 4000, 3800, 3600, 3400, 3200, 3000]
+        },
+        peakUsage: {
+          times: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          data: [95, 92, 98, 100, 105, 110, 115, 112, 108, 102, 98, 96]
+        },
+        cost: [
+          { x: 'Grid', y: 42000 },
+          { x: 'Solar', y: 25000 },
+          { x: 'Battery', y: 15000 }
+        ]
+      }
+    };
+
+    function initAnalyticsCharts() {
+      // Consumption Analysis Chart
+      const consumptionOptions = {
+        series: [{
+          name: 'Total Consumption',
+          data: timeframeData.day.consumption.consumption
+        }, {
+          name: 'Solar Generation',
+          data: timeframeData.day.consumption.generation
+        }],
+        chart: {
+          height: 350,
+          type: 'line',
+          zoom: { enabled: true },
+          fontFamily: 'Quicksand, sans-serif',
+          toolbar: {
+            show: true,
+            offsetX: 0,
+            offsetY: 0,
+            tools: {
+              download: true,
+              selection: true,
+              zoom: true,
+              zoomin: true,
+              zoomout: true,
+              pan: true,
+              reset: true
+            },
+            export: {
+              svg: {
+                filename: 'energy-consumption-svg',
+              },
+              csv: {
+                filename: 'energy-consumption-data',
+              },
+              png: {
+                filename: 'energy-consumption-png',
+              }
+            },
+            autoSelected: 'zoom'
+          }
+        },
+        dataLabels: { enabled: false },
+        stroke: {
+          width: [3, 3],
+          curve: 'smooth',
+          dashArray: [0, 5]
+        },
+        colors: ['var(--primary)', 'var(--secondary)'],
+        markers: {
+          size: 4,
+          colors: ['var(--primary)', 'var(--secondary)'],
+          strokeColors: '#fff',
+          strokeWidth: 2,
+          hover: { size: 7 }
+        },
+        xaxis: {
+          categories: timeframeData.day.consumption.timestamps,
+          labels: {
+            style: { colors: 'var(--text)', fontFamily: 'Quicksand, sans-serif' }
+          }
+        },
+        yaxis: {
+          title: {
+            text: 'Energy (kWh)',
+            style: { fontFamily: 'Quicksand, sans-serif' }
+          },
+          labels: {
+            style: { colors: 'var(--text)', fontFamily: 'Quicksand, sans-serif' }
+          }
+        },
+        grid: { borderColor: '#e0e0e0', strokeDashArray: 5 },
+        legend: { 
+          position: 'top', 
+          horizontalAlign: 'left',
+          offsetX: 40,
+          offsetY: 8,
+          itemMargin: {
+            horizontal: 12
+          }
+        },
+        tooltip: { 
+          theme: 'dark',
+          y: {
+            formatter: function(value) {
+              return value + " kWh";
+            }
+          }
+        }
+      };
+
+      // Peak Usage Chart
+      const peakUsageOptions = {
+        series: [{
+          name: 'Peak Usage',
+          data: timeframeData.day.peakUsage.data
+        }],
+        chart: {
+          type: 'bar',
+          height: 350,
+          fontFamily: 'Quicksand, sans-serif',
+          toolbar: { show: true }
+        },
+        plotOptions: {
+          bar: {
+            borderRadius: 10,
+            columnWidth: '60%',
+            dataLabels: { position: 'top' }
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return val + " kW";
+          },
+          offsetY: -20,
+          style: {
+            fontSize: '12px',
+            colors: ['var(--text)'],
+            fontFamily: 'Quicksand, sans-serif'
+          }
+        },
+        colors: ['var(--gradient-start)'],
+        xaxis: {
+          categories: timeframeData.day.peakUsage.times,
+          position: 'bottom',
+          labels: {
+            style: { colors: 'var(--text)', fontFamily: 'Quicksand, sans-serif' }
+          },
+          axisBorder: { show: false },
+          axisTicks: { show: false }
+        },
+        yaxis: {
+          title: {
+            text: 'Power (kW)',
+            style: { fontFamily: 'Quicksand, sans-serif' }
+          },
+          axisBorder: { show: false },
+          axisTicks: { show: false },
+          labels: {
+            show: true,
+            formatter: function (val) {
+              return val.toFixed(0) + " kW";
+            },
+            style: { colors: 'var(--text)', fontFamily: 'Quicksand, sans-serif' }
+          }
+        }
+      };
+
+      // Cost Analysis Chart
+      const costOptions = {
+        series: timeframeData.day.cost.map(item => item.y),
+        chart: {
+          type: 'pie',
+          height: 350,
+          fontFamily: 'Quicksand, sans-serif'
+        },
+        labels: ['Grid Power', 'Solar Power', 'Battery Storage'],
+        colors: ['var(--gradient-start)', 'var(--gradient-mid)', 'var(--gradient-end)'],
+        legend: {
+          position: 'bottom',
+          fontFamily: 'Quicksand, sans-serif'
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return val.toFixed(1) + "%";
+          },
+          style: {
+            fontSize: '14px',
+            fontFamily: 'Quicksand, sans-serif',
+            fontWeight: 'bold'
+          }
+        },
+        tooltip: {
+          y: {
+            formatter: function(value) {
+              return "$" + value.toFixed(2);
+            }
+          }
+        },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            chart: { height: 300 },
+            legend: { position: 'bottom' }
+          }
+        }]
+      };
+
+      // Initialize Charts
+      consumptionChart = new ApexCharts(document.querySelector("#consumptionChart"), consumptionOptions);
+      peakUsageChart = new ApexCharts(document.querySelector("#peakUsageChart"), peakUsageOptions);
+      costChart = new ApexCharts(document.querySelector("#costChart"), costOptions);
+
+      consumptionChart.render();
+      peakUsageChart.render();
+      costChart.render();
+    }
+
+    // Time filter handling
+    function updateTimeframe(timeframe) {
+      const buttons = document.querySelectorAll('.time-filter button');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      const data = timeframeData[timeframe];
+      
+      // Update Consumption Chart
+      consumptionChart.updateOptions({
+        xaxis: {
+          categories: data.consumption.timestamps
+        }
+      });
+      consumptionChart.updateSeries([
+        {
+          name: 'Total Consumption',
+          data: data.consumption.consumption
+        },
+        {
+          name: 'Solar Generation',
+          data: data.consumption.generation
+        }
+      ]);
+
+      // Update Peak Usage Chart
+      peakUsageChart.updateOptions({
+        xaxis: {
+          categories: data.peakUsage.times
+        }
+      });
+      peakUsageChart.updateSeries([{
+        name: 'Peak Usage',
+        data: data.peakUsage.data
+      }]);
+
+      // Update Cost Chart
+      costChart.updateSeries(data.cost.map(item => item.y));
+      
+      showAlert(`Showing ${timeframe} analytics data`, 'success');
+    }
+  </script>
+</body>
+</html>
