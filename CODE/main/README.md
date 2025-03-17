@@ -62,8 +62,8 @@ IEMS is an advanced energy management system built on ESP32 that intelligently m
 - Automatic fan control
 
 ## Development
-- Author: Pavan Kalsariya
 - Organization: Teenage Engineering Works
+- Team Members - Pavan Kalsariya, Dhruv Suthar, Pratham Patel, Adarsh Singh, Rishav Patra, Hena Patel
 - Version: 2.1.0
 
 ## License
