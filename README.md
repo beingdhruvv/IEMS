@@ -1,108 +1,55 @@
 # Intelligent Energy Management System (IEMS)
+> ⚠️ **Currently in Deployment Phase**
+> - Some features are implemented as placeholders
+> - Ongoing development and optimization 
+
+Team: Teenage Engineering Works
+
+Version: 4.1 (22 FEB)
+
+
+
+![IEMS DEMO VIDEO](https://github.com/user-attachments/assets/54c72df2-a1fb-4397-b787-678a62b644d6)
+
+![WhatsApp Image 2025-02-22 at 1 46 34 PM](https://github.com/user-attachments/assets/a58d535c-6a1e-41c2-97d7-b3b1842e2a3c)
 
 ## Overview
-ESP32-based energy management system that controls power distribution between solar, grid, and manages system temperature.
+The **Intelligent Energy Management System (IEMS)** is an advanced energy management solution built on the ESP32 microcontroller. It intelligently manages power distribution between solar, battery, and grid sources while ensuring system safety, efficiency, and reliability. The system is designed for real-time monitoring, control, and optimization of energy usage.
 
-## Current Implementation Status
-
-### Implemented Features ✅
-- Temperature monitoring with DS18B20 sensor
-- Relay control system for:
-  - Solar power switching
-  - Grid power switching
-  - Cooling fan control
-- Real-time web dashboard with:
-  - Live temperature display
-  - Power source status
-  - Direct relay controls
-  - System monitoring graphs
-- Fixed display values:
-  - Solar generation: 0.2 kWh
-  - Battery level: 92%
-
-### Pending Implementation ⏳
-- Real solar power monitoring (INA219)
-- Grid power monitoring (ZMPT101B & SCT013)
-- Battery management system
-- Automatic power source switching
-- Data logging system
-- Analytics dashboard functionality
-
-## Hardware Setup
-- ESP32 Development Board
-- DS18B20 Temperature Sensor (GPIO4)
-- 3x Relays:
-  - Solar Power (GPIO25)
-  - Grid Power (GPIO27)
-  - Fan Control (GPIO26)
+---
 
 ## Dependencies
-- ESPAsyncWebServer
-- AsyncTCP
-- ArduinoJson
-- OneWire
-- DallasTemperature
+- Wire.h - I2C communication
+- OneWire & DallasTemperature - Temperature sensor interface
+- Adafruit_INA219 - Current/voltage monitoring
+- ZMPT101B - AC voltage measurement
+- EmonLib - Energy monitoring
+- ESPAsyncWebServer - Web server functionality
+- AsyncTCP - Asynchronous TCP operations
+- ArduinoJson - JSON data handling
 
-## Quick Start
-1. Connect hardware according to pin definitions in `config.h`
-2. Update WiFi credentials in `config.h`
-3. Upload code to ESP32
-4. Access dashboard via ESP32's IP address
+## Key Features
+- **Multi-Source Power Management**: Intelligent switching between Solar, Battery, and Grid
+- **Real-Time Monitoring**: Temperature, current, voltage, and power consumption tracking
+- **Automated Control**: Smart decision-making for optimal power source selection
+- **Safety Systems**: 
+  - Temperature-based shutdown (>80°C)
+  - Overcurrent protection
+  - Voltage monitoring
+  - Automatic fan control
+- **Web Interface**: Modern dashboard for monitoring and control
+- **Data Logging**: Comprehensive system metrics recording
+- **Fail-Safe Operation**: Degraded mode support for system reliability
 
 ## Project Structure
 ```
-/main
-├── config.h         # Pin definitions & system parameters
-├── main.ino        # Main program & WebSocket handling
-├── webui.h         # Dashboard interface
-├── SensorInit.h/cpp # Sensor initialization
-└── SensorManager.h/cpp # Sensor data management
+├── main.ino          # Main program file
+├── config.h          # Configuration and pin definitions
+├── webui.h           # Web interface HTML/CSS/JS
+├── SensorManager.h   # Sensor data management
+├── PowerManager.h    # Power source control
+├── SensorInit.h      # Sensor initialization
+└── Logger.h          # Logging system
 ```
+---
 
-## Contributing
-Project by Teenage Engineering Works
-Author: Pavan Kalsariya
-
-## Features
-- Multiple power source management (Solar, Battery, Grid)
-- Automatic mode for optimal power source selection
-- Real-time temperature monitoring and fan control
-- Comprehensive sensor data logging
-- Web interface for monitoring and control
-- Fail-safe operation with degraded mode support
-- Rate-limited logging system
-
-## Installation
-1. Clone the repository
-2. Install required libraries through Arduino IDE
-3. Configure WiFi credentials in config.h
-4. Upload to ESP32
-
-## File Structure
-- main.ino: Main program file
-- config.h: Configuration and pin definitions
-- webui.h: Web interface HTML/CSS/JS
-- SensorManager.h/cpp: Sensor data management
-- PowerManager.h/cpp: Power source control
-- SensorInit.h/cpp: Sensor initialization and error handling
-- Logger.h/cpp: Logging system
-
-## Usage
-1. Power up the system
-2. Connect to the ESP32's IP address
-3. Monitor and control through the web interface
-4. Check serial output for detailed logs
-
-## Safety Features
-- Temperature-based shutdown (>80°C)
-- Overcurrent protection
-- Voltage monitoring
-- Automatic fan control
-
-## Development
-- Organization: Teenage Engineering Works
-- Team Members: Pavan Kalsariya, Pratham Patel, Dhruv Suthar, Hena Patel, Adarsh Singh, Rishav Patra
-- Version: 2.1.0
-
-## License
-MIT License
