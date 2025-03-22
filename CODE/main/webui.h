@@ -1,6 +1,5 @@
 /*
  * Web Interface for IEMS Project
- * Author: Pavan Kalsariya
  * Teenage Engineering Works
  * Update Counter: 1
  */
